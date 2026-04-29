@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,7 +20,5 @@ public class CreateGigRequest {
     private double lat;
     @NotNull(message = "Location is required")
     private double lng;
-
-
+    private List<String> imageUrls;
 }
-

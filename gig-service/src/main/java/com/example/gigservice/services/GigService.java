@@ -8,6 +8,7 @@ import com.example.gigservice.dtos.UpdateGigRequest;
 import com.example.gigservice.dtos.GigDto;
 import com.example.gigservice.entities.Gig;
 import com.example.gigservice.entities.Category;
+import com.example.gigservice.entities.GigImage;
 import lombok.AllArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -15,6 +16,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,6 +49,18 @@ public class GigService {
                 .category(category)
                 .location(location)
                 .build();
+
+        if (request.getImageUrls() != null) {
+            List<GigImage> gigImages = request.getImageUrls().stream()
+                    .map(url -> {
+                        GigImage img = new GigImage();
+                        img.setGig(gig);
+                        img.setImageUrl(url);
+                        return img;
+                    })
+                    .collect(Collectors.toList());
+            gig.setImages(gigImages);
+        }
 
         gigRepository.save(gig);
         return gigMapper.toDto(gig);
