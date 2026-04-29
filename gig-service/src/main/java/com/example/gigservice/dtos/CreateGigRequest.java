@@ -21,4 +21,5 @@ public class CreateGigRequest {
     @NotNull(message = "Location is required")
     private double lng;
     private List<String> imageUrls;
+    private List<AvailabilityRequest> availabilities;
 }

@@ -5,10 +5,12 @@ import com.example.gigservice.repositories.GigRepository;
 import com.example.gigservice.repositories.CategoryRepository;
 import com.example.gigservice.dtos.CreateGigRequest;
 import com.example.gigservice.dtos.UpdateGigRequest;
+import com.example.gigservice.dtos.AvailabilityRequest;
 import com.example.gigservice.dtos.GigDto;
 import com.example.gigservice.entities.Gig;
 import com.example.gigservice.entities.Category;
 import com.example.gigservice.entities.GigImage;
+import com.example.gigservice.entities.GigAvailability;
 import lombok.AllArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -16,6 +18,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,6 +63,23 @@ public class GigService {
                     })
                     .collect(Collectors.toList());
             gig.setImages(gigImages);
+        }
+
+        if (request.getAvailabilities() != null) {
+            List<GigAvailability> availabilities = new ArrayList<>();
+            for (AvailabilityRequest availReq : request.getAvailabilities()) {
+                LocalTime start = LocalTime.parse(availReq.getStartTime());
+                LocalTime end = LocalTime.parse(availReq.getEndTime());
+                for (String day : availReq.getDays()) {
+                    GigAvailability availability = new GigAvailability();
+                    availability.setGig(gig);
+                    availability.setAvailableDay(day);
+                    availability.setStartTime(start);
+                    availability.setEndTime(end);
+                    availabilities.add(availability);
+                }
+            }
+            gig.setAvailabilities(availabilities);
         }
 
         gigRepository.save(gig);
