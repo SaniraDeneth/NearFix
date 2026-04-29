@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,9 +22,12 @@ public class GigController {
     @PostMapping
     public ResponseEntity<GigDto> createGig(
             @RequestBody @Valid CreateGigRequest request,
-            @RequestHeader("X-user-Id") UUID userId
+            @RequestHeader("X-user-Id") UUID userId,
+            UriComponentsBuilder uriBuilder
     ) {
-        return ResponseEntity.ok(gigService.createGig(request, userId));
+        var gigDto = gigService.createGig(request, userId);
+        var uri = uriBuilder.path("/gigs/{id}").buildAndExpand(gigDto.getId()).toUri();
+        return ResponseEntity.created(uri).body(gigDto);
     }
 
     @GetMapping("/{id}")

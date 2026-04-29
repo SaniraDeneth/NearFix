@@ -1,9 +1,14 @@
 package com.example.gigservice.dtos;
 
+import lombok.Data;
+
 import java.util.UUID;
 
+@Data
 public class GigDto {
-    public UUID id;
-    public String title;
-    public double price;
+    private UUID id;
+    private String title;
+    private double price;
+    private CategoryDto category;
+    private PointDto location;
 }
