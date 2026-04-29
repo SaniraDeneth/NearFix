@@ -135,4 +135,11 @@ public class GigService {
 
         gigRepository.delete(gig);
     }
+
+    public List<GigDto> searchNearbyGigs(double lat, double lng, double radiusInKm, UUID categoryId, Double minPrice, Double maxPrice) {
+        double radiusInMeters = radiusInKm * 1000;
+        return gigRepository.searchNearby(lat, lng, radiusInMeters, categoryId, minPrice, maxPrice).stream()
+                .map(gigMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

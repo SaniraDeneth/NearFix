@@ -30,6 +30,18 @@ public class GigController {
         return ResponseEntity.created(uri).body(gigDto);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<GigDto>> searchNearbyGigs(
+            @RequestParam("lat") double lat,
+            @RequestParam("lng") double lng,
+            @RequestParam(value = "radiusInKm", defaultValue = "10.0") double radiusInKm,
+            @RequestParam(value = "categoryId", required = false) UUID categoryId,
+            @RequestParam(value = "minPrice", required = false) Double minPrice,
+            @RequestParam(value = "maxPrice", required = false) Double maxPrice
+    ) {
+        return ResponseEntity.ok(gigService.searchNearbyGigs(lat, lng, radiusInKm, categoryId, minPrice, maxPrice));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<GigDto> getGigById(@PathVariable UUID id) {
         return ResponseEntity.ok(gigService.getGigById(id));

@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 public interface GigMapper {
     
     @Mapping(source = "location", target = "location")
+    @Mapping(target = "imageUrls", expression = "java(gig.getImages() != null ? gig.getImages().stream().map(com.example.gigservice.entities.GigImage::getImageUrl).collect(java.util.stream.Collectors.toList()) : null)")
     GigDto toDto(Gig gig);
 
     default PointDto mapPoint(Point point) {
