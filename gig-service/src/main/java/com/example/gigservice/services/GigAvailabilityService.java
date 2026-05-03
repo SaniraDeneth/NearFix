@@ -7,6 +7,8 @@ import com.example.gigservice.dtos.AvailabilityRequest;
 import com.example.gigservice.dtos.GigAvailabilityDto;
 import com.example.gigservice.entities.GigAvailability;
 import com.example.gigservice.entities.Gig;
+import com.example.gigservice.exceptions.ResourceNotFoundException;
+import com.example.gigservice.exceptions.UnauthorizedException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +27,10 @@ public class GigAvailabilityService {
 
     public List<GigAvailabilityDto> addAvailability(UUID gigId, AvailabilityRequest request, UUID userId) {
         Gig gig = gigRepository.findById(gigId)
-                .orElseThrow(() -> new RuntimeException("Gig not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
 
         if (!gig.getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to add availability to this gig");
+            throw new UnauthorizedException("Unauthorized to add availability to this gig");
         }
 
         LocalTime start = LocalTime.parse(request.getStartTime());
@@ -57,10 +59,10 @@ public class GigAvailabilityService {
 
     public void deleteAvailability(UUID availabilityId, UUID userId) {
         GigAvailability availability = availabilityRepository.findById(availabilityId)
-                .orElseThrow(() -> new RuntimeException("Gig availability not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig availability not found"));
 
         if (!availability.getGig().getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to delete availability from this gig");
+            throw new UnauthorizedException("Unauthorized to delete availability from this gig");
         }
 
         availabilityRepository.delete(availability);

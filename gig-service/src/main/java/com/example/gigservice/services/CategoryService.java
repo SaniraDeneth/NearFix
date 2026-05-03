@@ -6,6 +6,7 @@ import com.example.gigservice.dtos.CreateCategoryRequest;
 import com.example.gigservice.dtos.UpdateCategoryRequest;
 import com.example.gigservice.dtos.CategoryDto;
 import com.example.gigservice.entities.Category;
+import com.example.gigservice.exceptions.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class CategoryService {
         Category parent = null;
         if (request.getParentId() != null) {
             parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
         }
 
         Category category = new Category();
@@ -36,7 +37,7 @@ public class CategoryService {
 
     public CategoryDto getCategoryById(UUID id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         return categoryMapper.toDto(category);
     }
 
@@ -48,7 +49,7 @@ public class CategoryService {
 
     public CategoryDto updateCategory(UUID id, UpdateCategoryRequest request) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         if (request.getName() != null) {
             category.setName(request.getName());
@@ -56,7 +57,7 @@ public class CategoryService {
 
         if (request.getParentId() != null) {
             Category parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
             category.setParent(parent);
         }
 
@@ -66,7 +67,7 @@ public class CategoryService {
 
     public void deleteCategory(UUID id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         categoryRepository.delete(category);
     }
 }

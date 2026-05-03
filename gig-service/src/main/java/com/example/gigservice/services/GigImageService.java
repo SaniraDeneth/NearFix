@@ -7,6 +7,8 @@ import com.example.gigservice.dtos.CreateGigImageRequest;
 import com.example.gigservice.dtos.GigImageDto;
 import com.example.gigservice.entities.GigImage;
 import com.example.gigservice.entities.Gig;
+import com.example.gigservice.exceptions.ResourceNotFoundException;
+import com.example.gigservice.exceptions.UnauthorizedException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +25,10 @@ public class GigImageService {
 
     public GigImageDto addImageToGig(UUID gigId, CreateGigImageRequest request, UUID userId) {
         Gig gig = gigRepository.findById(gigId)
-                .orElseThrow(() -> new RuntimeException("Gig not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
 
         if (!gig.getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to add images to this gig");
+            throw new UnauthorizedException("Unauthorized to add images to this gig");
         }
 
         GigImage gigImage = new GigImage();
@@ -45,10 +47,10 @@ public class GigImageService {
 
     public void deleteGigImage(UUID imageId, UUID userId) {
         GigImage gigImage = gigImageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("Gig image not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig image not found"));
 
         if (!gigImage.getGig().getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to delete images from this gig");
+            throw new UnauthorizedException("Unauthorized to delete images from this gig");
         }
 
         gigImageRepository.delete(gigImage);

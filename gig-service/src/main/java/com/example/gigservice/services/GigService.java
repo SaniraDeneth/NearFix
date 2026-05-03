@@ -11,6 +11,8 @@ import com.example.gigservice.entities.Gig;
 import com.example.gigservice.entities.Category;
 import com.example.gigservice.entities.GigImage;
 import com.example.gigservice.entities.GigAvailability;
+import com.example.gigservice.exceptions.ResourceNotFoundException;
+import com.example.gigservice.exceptions.UnauthorizedException;
 import lombok.AllArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -36,7 +38,7 @@ public class GigService {
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
 
         Point location = null;
@@ -88,7 +90,7 @@ public class GigService {
 
     public GigDto getGigById(UUID id) {
         Gig gig = gigRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gig not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
         return gigMapper.toDto(gig);
     }
 
@@ -100,10 +102,10 @@ public class GigService {
 
     public GigDto updateGig(UUID id, UpdateGigRequest request, UUID userId) {
         Gig gig = gigRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gig not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
 
         if (!gig.getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to update this gig");
+            throw new UnauthorizedException("Unauthorized to update this gig");
         }
 
         if (request.getTitle() != null) gig.setTitle(request.getTitle());
@@ -112,7 +114,7 @@ public class GigService {
 
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
             gig.setCategory(category);
         }
 
@@ -127,10 +129,10 @@ public class GigService {
 
     public void deleteGig(UUID id, UUID userId) {
         Gig gig = gigRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gig not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
 
         if (!gig.getProviderId().equals(userId)) {
-            throw new RuntimeException("Unauthorized to delete this gig");
+            throw new UnauthorizedException("Unauthorized to delete this gig");
         }
 
         gigRepository.delete(gig);
