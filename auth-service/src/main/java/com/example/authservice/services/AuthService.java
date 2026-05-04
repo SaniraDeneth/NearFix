@@ -5,11 +5,12 @@ import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.dto.UserDto;
 import com.example.authservice.exceptions.EmailAlreadyExistsException;
 import com.example.authservice.exceptions.EmailNotFoundException;
-import com.example.authservice.exceptions.InvalidCredentialsException;
 import com.example.authservice.mappers.UserMapper;
 import com.example.authservice.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public UserDto register(RegisterRequest request) {
@@ -38,13 +40,14 @@ public class AuthService {
     }
 
     public UserDto login(@Valid LoginRequest request) {
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new EmailNotFoundException("User not found with email: " + request.getEmail()));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid password");
-        }
-
-        return userMapper.toDto(user);
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        return userRepository.findByEmail(request.getEmail())
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new EmailNotFoundException("User not found after authentication"));
     }
 }
