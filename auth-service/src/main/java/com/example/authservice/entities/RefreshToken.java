@@ -16,6 +16,7 @@ import java.util.UUID;
 @Table(name = "refresh_tokens")
 public class RefreshToken {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private UUID id;
 
