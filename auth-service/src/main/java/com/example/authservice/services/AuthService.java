@@ -1,10 +1,10 @@
 package com.example.authservice.services;
 
+import com.example.authservice.dto.JwtResponse;
 import com.example.authservice.dto.LoginRequest;
 import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.dto.UserDto;
 import com.example.authservice.exceptions.EmailAlreadyExistsException;
-import com.example.authservice.exceptions.EmailNotFoundException;
 import com.example.authservice.mappers.UserMapper;
 import com.example.authservice.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -23,6 +23,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Transactional
     public UserDto register(RegisterRequest request) {
@@ -39,15 +40,14 @@ public class AuthService {
         return userMapper.toDto(user);
     }
 
-    public UserDto login(@Valid LoginRequest request) {
+    public JwtResponse login(@Valid LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        return userRepository.findByEmail(request.getEmail())
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new EmailNotFoundException("User not found after authentication"));
+        var token = jwtService.generatedToken(request.getEmail());
+        return new JwtResponse(token);
     }
 }
