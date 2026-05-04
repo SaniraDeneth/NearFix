@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,18 +24,12 @@ public class User {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Size(max = 255)
-    @NotNull
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Size(max = 255)
-    @NotNull
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Size(max = 50)
-    @NotNull
     @Column(name = "role", nullable = false, length = 50)
     private String role;
 
@@ -41,10 +37,11 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
 }
