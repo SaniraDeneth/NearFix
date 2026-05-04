@@ -1,5 +1,6 @@
 package com.example.authservice.mappers;
 
+import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.dto.UserDto;
 import com.example.authservice.entities.User;
 import org.mapstruct.Mapper;
@@ -8,4 +9,5 @@ import org.mapstruct.Mapper;
 public interface UserMapper {
 
     UserDto toDto(User user);
+    User toEntity(RegisterRequest request);
 }

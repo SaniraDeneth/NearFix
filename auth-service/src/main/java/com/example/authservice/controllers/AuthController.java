@@ -1,5 +1,6 @@
 package com.example.authservice.controllers;
 
+import com.example.authservice.dto.LoginRequest;
 import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.dto.UserDto;
 import com.example.authservice.services.AuthService;
@@ -25,8 +26,14 @@ public class AuthController {
             @Valid @RequestBody RegisterRequest request,
             UriComponentsBuilder uriBuilder
     ) {
-        var userDto =  authService.register(request);
+        var userDto = authService.register(request);
         var uri = uriBuilder.path("/users/" + userDto.getId()).build().toUri();
-        return ResponseEntity.created(uri).body(userDto) ;
+        return ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest request) {
+        var userDto = authService.login(request);
+        return ResponseEntity.ok(userDto);
     }
 }
