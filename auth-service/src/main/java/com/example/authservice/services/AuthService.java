@@ -3,6 +3,7 @@ package com.example.authservice.services;
 import com.example.authservice.dto.RegisterRequest;
 import com.example.authservice.dto.UserDto;
 import com.example.authservice.entities.User;
+import com.example.authservice.exceptions.EmailAlreadyExistsException;
 import com.example.authservice.mappers.UserMapper;
 import com.example.authservice.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class AuthService {
     @Transactional
     public UserDto register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use");
+            throw new EmailAlreadyExistsException("Email already in use: " + request.getEmail());
         }
 
         var user = new User();
