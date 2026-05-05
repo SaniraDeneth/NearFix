@@ -36,6 +36,14 @@ public class JwtAuthenticationFilter implements WebFilter {
                 Claims claims = jwtUtils.getClaims(token);
                 String userId = claims.getSubject();
                 String role = claims.get("role", String.class);
+                String fallbackRole = role != null ? role : "ROLE_USER";
+
+                ServerWebExchange mutatedExchange = exchange.mutate()
+                        .request(builder -> builder
+                                .header("X-user-Id", userId)
+                                .header("X-user-Role", fallbackRole)
+                        )
+                        .build();
 
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userId,
@@ -43,7 +51,7 @@ public class JwtAuthenticationFilter implements WebFilter {
                         List.of(new SimpleGrantedAuthority(role != null ? role : "ROLE_USER"))
                 );
 
-                return chain.filter(exchange)
+                return chain.filter(mutatedExchange)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
             }
         }  catch (Exception e) {
