@@ -22,6 +22,9 @@ public class ApiGatewayApplication {
                 .route("gig-service", r -> r.path("/api/gigs/**")
                         .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}"))
                         .uri("http://localhost:8081"))
+                .route("category-service", r -> r.path("/api/categories/**")
+                        .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}"))
+                        .uri("http://localhost:8081"))
                 .build();
     }
 }
