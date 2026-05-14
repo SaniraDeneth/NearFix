@@ -1,7 +1,6 @@
 package com.example.gigservice.dtos;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.example.gigservice.entities.enums.ServiceMode;
 import lombok.Data;
 
 import java.util.List;
@@ -9,17 +8,23 @@ import java.util.UUID;
 
 @Data
 public class CreateGigRequest {
-    @NotBlank(message = "Title is required")
+    // Step 1
     private String title;
     private String description;
-    @NotNull(message = "Price is required")
-    private double price;
-    @NotNull(message = "Provider ID is required")
     private UUID categoryId;
-    @NotNull(message = "Location is required")
-    private double lat;
-    @NotNull(message = "Location is required")
-    private double lng;
-    private List<String> imageUrls;
+
+    // Step 2
+    private List<ServiceMode> modes;
+
+    // Step 3
+    private ServicePricingDto pricing;
+
+    // Step 4
+    private PointDto location; // Used if VISIT_CLIENT or VISIT_PROVIDER
+
+    // Step 5
     private List<AvailabilityRequest> availabilities;
+
+    // Step 6
+    private List<String> imageUrls;
 }

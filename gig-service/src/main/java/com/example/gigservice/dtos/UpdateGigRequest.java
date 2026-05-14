@@ -8,7 +8,6 @@ import java.util.UUID;
 public class UpdateGigRequest {
     private String title;
     private String description;
-    private double price;
     private UUID categoryId;
     private double lat;
     private double lng;

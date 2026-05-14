@@ -9,8 +9,10 @@ import java.util.UUID;
 public class GigDto {
     private UUID id;
     private String title;
-    private double price;
+    private List<com.example.gigservice.entities.enums.ServiceMode> modes;
+    private ServicePricingDto pricing;
     private CategoryDto category;
     private PointDto location;
     private List<String> imageUrls;
+    private List<GigAvailabilityDto> availabilities;
 }
