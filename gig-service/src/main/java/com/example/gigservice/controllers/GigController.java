@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,5 +69,14 @@ public class GigController {
     ) {
         gigService.deleteGig(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/calculate-vist-fee")
+    public ResponseEntity<BigDecimal> calculateVisitFee(
+            @PathVariable UUID id,
+            @RequestParam("lat") double lat,
+            @RequestParam("lng") double lng
+    ) {
+        return ResponseEntity.ok(gigService.calculateVisitFee(id,lat,lng));
     }
 }
