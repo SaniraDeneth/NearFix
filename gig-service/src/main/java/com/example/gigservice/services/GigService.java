@@ -1,16 +1,10 @@
 package com.example.gigservice.services;
 
+import com.example.gigservice.dtos.*;
+import com.example.gigservice.entities.*;
 import com.example.gigservice.mappers.GigMapper;
 import com.example.gigservice.repositories.GigRepository;
 import com.example.gigservice.repositories.CategoryRepository;
-import com.example.gigservice.dtos.CreateGigRequest;
-import com.example.gigservice.dtos.UpdateGigRequest;
-import com.example.gigservice.dtos.AvailabilityRequest;
-import com.example.gigservice.dtos.GigDto;
-import com.example.gigservice.entities.Gig;
-import com.example.gigservice.entities.Category;
-import com.example.gigservice.entities.GigImage;
-import com.example.gigservice.entities.GigAvailability;
 import com.example.gigservice.exceptions.ResourceNotFoundException;
 import com.example.gigservice.exceptions.UnauthorizedException;
 import lombok.AllArgsConstructor;
@@ -42,8 +36,8 @@ public class GigService {
         }
 
         Point location = null;
-        if (request.getLat() != 0 || request.getLng() != 0) {
-            location = geometryFactory.createPoint(new Coordinate(request.getLng(), request.getLat()));
+        if (request.getLocation() != null && (request.getLocation().getLat() != 0 ||  request.getLocation().getLng() != 0)) {
+            location = geometryFactory.createPoint(new Coordinate(request.getLocation().getLng(), request.getLocation().getLat()));
         }
 
         var gig = Gig.builder()
@@ -53,6 +47,30 @@ public class GigService {
                 .category(category)
                 .location(location)
                 .build();
+
+        if(request.getModes() != null) {
+            List<GigServiceMode> modes = request.getModes().stream()
+                    .map(mode -> {
+                                var gigServiceMode = new GigServiceMode();
+                                gigServiceMode.setGig(gig);
+                                gigServiceMode.setMode(mode);
+                                return gigServiceMode;
+                            })
+                    .collect(Collectors.toList());
+            gig.setModes(modes);
+        }
+
+        if(request.getPricing() != null) {
+            var priceDto = request.getPricing();
+            var pricing = ServicePricing.builder()
+                    .gig(gig)
+                    .basePrice(priceDto.getBasePrice())
+                    .travelFeePerKm(priceDto.getTravelFeePerKm())
+                    .priceType(priceDto.getPriceType())
+                    .maxVisitRadiusKm(priceDto.getMaxVisitRadiusKm())
+                    .build();
+            gig.setPricing(pricing);
+        }
 
         if (request.getImageUrls() != null) {
             List<GigImage> gigImages = request.getImageUrls().stream()
@@ -141,5 +159,42 @@ public class GigService {
         return gigRepository.searchNearby(lat, lng, radiusInMeters, categoryId, minPrice, maxPrice).stream()
                 .map(gigMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public double calculateDistanceInKm(double lat1, double lng1, double lat2, double lng2) {
+        final int R = 6371;
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    public java.math.BigDecimal calculateVisitFee(UUID gigId, double clientLat, double clientLng) {
+        Gig gig = gigRepository.findById(gigId)
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
+        if (gig.getLocation() == null) {
+            throw new IllegalArgumentException("Gig does not have a physical location registered");
+        }
+
+        double distance = calculateDistanceInKm(
+                // Point getY() returns Latitude, getX() returns Longitude
+                gig.getLocation().getY(), gig.getLocation().getX(),
+                clientLat, clientLng
+        );
+
+        ServicePricing pricing = gig.getPricing();
+        if (pricing == null) {
+            throw new IllegalStateException("Gig does not have pricing details configured");
+        }
+
+        if (pricing.getTravelFeePerKm() == null) {
+            return java.math.BigDecimal.ZERO;
+        }
+
+        return pricing.getTravelFeePerKm().multiply(java.math.BigDecimal.valueOf(distance))
+                .setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

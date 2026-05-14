@@ -31,6 +31,9 @@ public class Gig {
     @OneToMany(mappedBy = "gig", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GigServiceMode> modes;
 
+    @OneToOne(mappedBy = "gig", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ServicePricing pricing;
+
     @Column(name = "provider_id", nullable = false)
     private UUID providerId;
 

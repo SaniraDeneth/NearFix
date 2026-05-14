@@ -10,11 +10,14 @@ import java.util.UUID;
 
 public interface GigRepository extends JpaRepository<Gig, UUID> {
 
-    @Query(value = "SELECT * FROM gigs g WHERE " +
-            "ST_DWithin(g.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, :radius) = true " +
-            "AND (cast(:categoryId as uuid) IS NULL OR g.category_id = :categoryId) " +
-            "AND (:minPrice IS NULL OR g.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR g.price <= :maxPrice)",
+    @Query(value = """
+            SELECT g.* FROM gigs g
+            LEFT JOIN service_pricing sp ON g.id = sp.gig_id
+            WHERE ST_DWithin(g.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, :radius) = true
+            AND (cast(:categoryId as uuid) IS NULL or g.category_id = :categoryId)
+            AND (:minPrice IS NULL OR sp.base_price >= :minPrice)
+            AND (:maxPrice IS NULL OR sp.base_price <= :maxPrice)
+            """,
             nativeQuery = true)
     List<Gig> searchNearby(
             @Param("lat") double lat,
