@@ -49,7 +49,6 @@ public class GigService {
         var gig = Gig.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .price(request.getPrice())
                 .providerId(userId)
                 .category(category)
                 .location(location)
@@ -110,7 +109,6 @@ public class GigService {
 
         if (request.getTitle() != null) gig.setTitle(request.getTitle());
         if (request.getDescription() != null) gig.setDescription(request.getDescription());
-        if (request.getPrice() != 0) gig.setPrice(request.getPrice());
 
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())

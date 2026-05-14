@@ -28,8 +28,8 @@ public class Gig {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "price", nullable = false)
-    private double price;
+    @OneToMany(mappedBy = "gig", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GigServiceMode> modes;
 
     @Column(name = "provider_id", nullable = false)
     private UUID providerId;
