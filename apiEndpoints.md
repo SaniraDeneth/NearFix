@@ -90,6 +90,25 @@ Invalidates the current session and clears the `refreshToken` cookie.
 
 ---
 
+### E. Upgrade User Role (Internal Service Endpoint)
+Upgrades a user's role from `CLIENT` to `PROVIDER`. This endpoint is designed strictly for internal service-to-service communication and is whitelisted in Spring Security but protected by a Shared Secret key.
+
+* **Method**: `PUT`
+* **URL**: `http://auth-service:8082/auth/users/{userId}/upgrade-role`
+* **Headers**:
+  * `X-Internal-Secret: dev_internal_secret_key_123!` *(Required shared secret key)*
+* **Response (200 OK)**:
+  ```json
+  {
+    "id": "7b0f20da-7a1b-41c3-88bb-69271acb85cf",
+    "email": "user@example.com",
+    "role": "PROVIDER"
+  }
+  ```
+* **Response (403 Forbidden)**: If the `X-Internal-Secret` header is missing or incorrect.
+
+---
+
 ## 💼 2. Gig Service (`gig-service`)
 **Context Path**: `/api/gigs/**` and `/api/categories/**`
 
