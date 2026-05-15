@@ -24,6 +24,18 @@ services:
     volumes:
       - auth_db_data:/var/lib/postgresql/data
 
+  postgres-order:
+    image: postgis/postgis:15-3.4
+    container_name: order-db
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+
   auth-service:
     build:
       context: ./auth-service
@@ -59,7 +71,28 @@ services:
     ports:
       - "6379:6379"
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - JWT_SECRET=your_secret_key_here_at_least_32_characters_long
+      - AUTH_SERVICE_URL=http://auth-service:8082
+      - GIG_SERVICE_URL=http://gig-service:8081
+      - ORDER_SERVICE_URL=http://host.docker.internal:8083
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
+      - auth-service
+      - gig-service
+
 volumes:
   gig_db_data:
   auth_db_data:
-  redis_data:
+  redis_data:
+  order_db_data:
