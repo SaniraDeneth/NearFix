@@ -30,8 +30,12 @@ public class GatewaySecurityConfig {
                         .pathMatchers("/api/auth/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/gigs/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ROLE_ADMIN")
+                        .pathMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ROLE_ADMIN")
                         .anyExchange().authenticated()
                 );
         return http.build();
     }
 }
+
