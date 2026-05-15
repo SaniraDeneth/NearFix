@@ -1,8 +1,6 @@
 package com.example.gigservice.controllers;
 
-import com.example.gigservice.dtos.CreateGigRequest;
-import com.example.gigservice.dtos.GigDto;
-import com.example.gigservice.dtos.UpdateGigRequest;
+import com.example.gigservice.dtos.*;
 import com.example.gigservice.services.GigService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,9 +43,13 @@ public class GigControllerTest {
         var request = new CreateGigRequest();
         request.setTitle("Plumbing Work");
         request.setDescription("Fixing pipes");
-        request.setPrice(100.0);
-        request.setLat(6.9271);
-        request.setLng(79.8612);
+        var pricing = new ServicePricingDto();
+        pricing.setBasePrice(new BigDecimal("100.0"));
+        request.setPricing(pricing);
+        var location = new PointDto();
+        location.setLat(6.9271);
+        location.setLng(79.8612);
+        request.setLocation(location);
         request.setCategoryId(UUID.randomUUID());
 
         var responseDto = new GigDto();

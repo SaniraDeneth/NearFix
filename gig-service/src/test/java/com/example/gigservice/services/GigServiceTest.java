@@ -1,9 +1,6 @@
 package com.example.gigservice.services;
 
-import com.example.gigservice.dtos.AvailabilityRequest;
-import com.example.gigservice.dtos.CreateGigRequest;
-import com.example.gigservice.dtos.GigDto;
-import com.example.gigservice.dtos.UpdateGigRequest;
+import com.example.gigservice.dtos.*;
 import com.example.gigservice.entities.Category;
 import com.example.gigservice.entities.Gig;
 import com.example.gigservice.exceptions.ResourceNotFoundException;
@@ -18,13 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,11 +48,15 @@ public class GigServiceTest {
         var request = new CreateGigRequest();
         request.setTitle("Fix Plumbing");
         request.setDescription("Fixing leaks");
-        request.setPrice(50.0);
+        var pricing = new com.example.gigservice.dtos.ServicePricingDto();
+        pricing.setBasePrice(new BigDecimal("50.0"));
+        request.setPricing(pricing);
         request.setCategoryId(categoryId);
-        request.setLat(6.9271);
-        request.setLng(79.8612);
-        request.setImageUrls(List.of("http://image1.com"));
+        var location = new PointDto();
+        location.setLat(6.9271);
+        location.setLng(79.8612);
+        request.setLocation(location);
+        request.setImageUrls(List.of("https://image1.com"));
         
         var availReq = new AvailabilityRequest();
         availReq.setStartTime("09:00:00");
@@ -147,7 +148,6 @@ public class GigServiceTest {
 
         var request = new UpdateGigRequest();
         request.setTitle("Updated Title");
-        request.setPrice(100.0);
         request.setCategoryId(categoryId);
 
         var gig = new Gig();
@@ -162,7 +162,6 @@ public class GigServiceTest {
         gigService.updateGig(id, request, userId);
 
         assertEquals("Updated Title", gig.getTitle());
-        assertEquals(100.0, gig.getPrice());
         assertEquals(category, gig.getCategory());
         verify(gigRepository).save(gig);
     }

@@ -3,6 +3,7 @@ package com.example.gigservice.repositories;
 import com.example.gigservice.AbstractPostgresTest;
 import com.example.gigservice.entities.Category;
 import com.example.gigservice.entities.Gig;
+import com.example.gigservice.entities.ServicePricing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,19 +49,28 @@ public class GigRepositoryTest extends AbstractPostgresTest {
 
         Gig gig1 = Gig.builder()
                 .title("Rajagiriya Plumber")
-                .price(100.0)
                 .providerId(UUID.randomUUID())
                 .category(plumbing)
                 .location(createPoint(6.9067, 79.9194))
                 .build();
+        var pricing1 = ServicePricing.builder()
+                .gig(gig1)
+                .basePrice(new BigDecimal("100.0"))
+                .build();
+        gig1.setPricing(pricing1);
 
         Gig gig2 = Gig.builder()
                 .title("Kandy Electrician")
-                .price(200.0)
                 .providerId(UUID.randomUUID())
                 .category(electrical)
                 .location(createPoint(7.2906, 80.6337))
                 .build();
+
+        var pricing2 = ServicePricing.builder()
+                .gig(gig2)
+                .basePrice(new BigDecimal("200.0"))
+                .build();
+        gig2.setPricing(pricing2);
 
         gigRepository.saveAll(List.of(gig1, gig2));
     }
@@ -74,7 +85,7 @@ public class GigRepositoryTest extends AbstractPostgresTest {
         List<Gig> results = gigRepository.searchNearby(lat, lng, radius, null, null, null);
 
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().getTitle()).isEqualTo("Rajagiriya Plumber");
+        assertThat(results.get(0).getTitle()).isEqualTo("Rajagiriya Plumber");
     }
 
     @Test
@@ -99,7 +110,7 @@ public class GigRepositoryTest extends AbstractPostgresTest {
         List<Gig> results = gigRepository.searchNearby(lat, lng, radius, electrical.getId(), null, null);
 
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().getTitle()).isEqualTo("Kandy Electrician");
+        assertThat(results.get(0).getTitle()).isEqualTo("Kandy Electrician");
     }
 
     @Test
@@ -112,7 +123,7 @@ public class GigRepositoryTest extends AbstractPostgresTest {
         List<Gig> results = gigRepository.searchNearby(lat, lng, radius, null, 150.0, 250.0);
 
         assertThat(results).hasSize(1);
-        assertThat(results.getFirst().getTitle()).isEqualTo("Kandy Electrician");
+        assertThat(results.get(0).getTitle()).isEqualTo("Kandy Electrician");
     }
 
     private Point createPoint(double lat, double lng) {
