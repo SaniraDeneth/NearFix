@@ -2,7 +2,6 @@ package com.example.apigateway.filters;
 
 import com.example.apigateway.config.JwtUtils;
 import io.jsonwebtoken.Claims;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,10 +15,13 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter implements WebFilter {
 
     private final JwtUtils jwtUtils;
+
+    public JwtAuthenticationFilter(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
