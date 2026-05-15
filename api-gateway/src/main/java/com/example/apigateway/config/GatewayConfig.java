@@ -1,5 +1,6 @@
 package com.example.apigateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -10,6 +11,13 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 public class GatewayConfig {
+
+    @Value("${services.auth-service.url}")
+    private String authServiceUrl;
+    @Value("${services.gig-service.url}")
+    private String gigServiceUrl;
+    @Value("${services.order-service.url}")
+    private String orderServiceUrl;
 
     @Bean
     public KeyResolver userKeyResolver() {
@@ -34,11 +42,15 @@ public class GatewayConfig {
                 .route("auth-service", r -> r.path("/api/auth/**")
                         .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}")
                                 .requestRateLimiter(rl -> rl.setRateLimiter(rateLimiter).setKeyResolver(userKeyResolver())))
-                        .uri("http://localhost:8082"))
+                        .uri(authServiceUrl))
                 .route("gig-service", r -> r.path("/api/gigs/**", "/api/categories/**")
                         .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}")
                                 .requestRateLimiter(rl -> rl.setRateLimiter(rateLimiter).setKeyResolver(userKeyResolver())))
-                        .uri("http://localhost:8081"))
+                        .uri(gigServiceUrl))
+                .route("order-service", r -> r.path("/api/orders/**")
+                        .filters(f -> f.rewritePath("/api/(?<segment>.*)", "/${segment}")
+                                .requestRateLimiter(rl -> rl.setRateLimiter(rateLimiter).setKeyResolver(userKeyResolver())))
+                        .uri(orderServiceUrl))
                 .build();
     }
 }

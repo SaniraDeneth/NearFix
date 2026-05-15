@@ -12,6 +12,14 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
 
+services:
+  auth-service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8082}
+  gig-service:
+    url: ${GIG_SERVICE_URL:http://localhost:8081}
+  order-service:
+    url: ${ORDER_SERVICE_URL:http://localhost:8083}
+
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
