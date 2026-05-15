@@ -8,6 +8,7 @@ import com.example.authservice.entities.User;
 import com.example.authservice.exceptions.EmailAlreadyExistsException;
 import com.example.authservice.exceptions.EmailNotFoundException;
 import com.example.authservice.exceptions.InvalidTokenException;
+import com.example.authservice.exceptions.UserNotFoundException;
 import com.example.authservice.mappers.UserMapper;
 import com.example.authservice.repositories.RefreshTokenRepository;
 import com.example.authservice.repositories.UserRepository;
@@ -73,7 +74,7 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtResponse refreshToken(String refreshTokenString) {
+    public TokenDto refreshToken(String refreshTokenString) {
         var jwt = jwtService.parseToken(refreshTokenString);
         if (jwt == null || jwt.isExpired()) {
             throw new InvalidTokenException("Refresh token is invalid or expired");
@@ -84,8 +85,24 @@ public class AuthService {
 
         var user = refreshToken.getUser();
         String newAccessToken = jwtService.generateAccessToken(user).toString();
-        
-        return new JwtResponse(newAccessToken);
+        String newRefreshToken = jwtService.generateRefreshToken(user).toString();
+
+        saveRefreshToken(user, newRefreshToken);
+
+        return new TokenDto(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public UserDto upgradeUserToProvider(java.util.UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+        if (user.getRole() == Role.CLIENT) {
+            user.setRole(Role.PROVIDER);
+            userRepository.save(user);
+        }
+
+        return userMapper.toDto(user);
     }
 
     @Transactional

@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -49,10 +51,25 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> refreshToken(
-            @CookieValue(name = "refreshToken") String refreshToken
+            @CookieValue(name = "refreshToken") String refreshToken,
+            HttpServletResponse response
     ) {
-        var accessToken = authService.refreshToken(refreshToken);
-        return ResponseEntity.ok(accessToken);
+        TokenDto tokens = authService.refreshToken(refreshToken);
+        
+        var cookie = new Cookie("refreshToken", tokens.getRefreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new JwtResponse(tokens.getAccessToken()));
+    }
+
+    @PutMapping("/users/{userId}/upgrade-role")
+    public ResponseEntity<UserDto> upgradeRole(@PathVariable UUID userId) {
+        var userDto = authService.upgradeUserToProvider(userId);
+        return ResponseEntity.ok(userDto);
     }
 
     @PostMapping("/logout")
