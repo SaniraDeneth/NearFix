@@ -16,4 +16,5 @@ public class GigDto {
     private List<String> imageUrls;
     private List<GigAvailabilityDto> availabilities;
     private boolean isAvailable;
+    private UUID providerId;
 }

@@ -71,7 +71,7 @@ public class GigController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/calculate-vist-fee")
+    @GetMapping("/{id}/calculate-visit-fee")
     public ResponseEntity<BigDecimal> calculateVisitFee(
             @PathVariable UUID id,
             @RequestParam("lat") double lat,
