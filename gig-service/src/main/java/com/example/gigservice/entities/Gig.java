@@ -57,4 +57,8 @@ public class Gig {
 
     @OneToMany(mappedBy = "gig", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GigAvailability> availabilities;
+
+    @Builder.Default
+    @Column(name = "is_available", nullable = false)
+    private boolean isAvailable = true;
 }

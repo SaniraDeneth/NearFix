@@ -15,4 +15,5 @@ public class GigDto {
     private PointDto location;
     private List<String> imageUrls;
     private List<GigAvailabilityDto> availabilities;
+    private boolean isAvailable;
 }

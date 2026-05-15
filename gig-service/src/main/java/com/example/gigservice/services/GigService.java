@@ -197,4 +197,12 @@ public class GigService {
         return pricing.getTravelFeePerKm().multiply(java.math.BigDecimal.valueOf(distance))
                 .setScale(2, java.math.RoundingMode.HALF_UP);
     }
+
+    public GigDto updateAvailability(UUID id, boolean available) {
+        Gig gig = gigRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Gig not found"));
+        gig.setAvailable(available);
+        gigRepository.save(gig);
+        return gigMapper.toDto(gig);
+    }
 }

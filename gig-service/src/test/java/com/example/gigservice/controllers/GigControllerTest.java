@@ -152,4 +152,20 @@ public class GigControllerTest {
                 .header("X-user-Id", userId.toString()))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @DisplayName("PUT /gigs/{id}/availability - Should return 200 OK")
+    void updateAvailability_Returns200() throws Exception {
+        var gigId = UUID.randomUUID();
+        var responseDto = new GigDto();
+        responseDto.setId(gigId);
+        responseDto.setAvailable(false);
+
+        when(gigService.updateAvailability(gigId, false)).thenReturn(responseDto);
+
+        mockMvc.perform(put("/gigs/{id}/availability", gigId)
+                .param("available", "false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false));
+    }
 }

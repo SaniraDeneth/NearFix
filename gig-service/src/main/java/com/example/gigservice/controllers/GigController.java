@@ -79,4 +79,12 @@ public class GigController {
     ) {
         return ResponseEntity.ok(gigService.calculateVisitFee(id,lat,lng));
     }
+
+    @PutMapping("/{id}/availability")
+    public ResponseEntity<GigDto> updateAvailability(
+            @PathVariable UUID id,
+            @RequestParam("available") boolean available
+    ) {
+        return ResponseEntity.ok(gigService.updateAvailability(id, available));
+    }
 }

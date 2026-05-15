@@ -14,6 +14,7 @@ public interface GigRepository extends JpaRepository<Gig, UUID> {
             SELECT g.* FROM gigs g
             LEFT JOIN service_pricing sp ON g.id = sp.gig_id
             WHERE ST_DWithin(g.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, :radius) = true
+            AND g.is_available = true
             AND (cast(:categoryId as uuid) IS NULL or g.category_id = :categoryId)
             AND (:minPrice IS NULL OR sp.base_price >= :minPrice)
             AND (:maxPrice IS NULL OR sp.base_price <= :maxPrice)

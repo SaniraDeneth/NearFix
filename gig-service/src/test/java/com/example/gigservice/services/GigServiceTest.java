@@ -318,4 +318,21 @@ public class GigServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> gigService.deleteGig(id, UUID.randomUUID()));
     }
+
+    @Test
+    @DisplayName("Should update gig availability successfully")
+    void updateAvailability_Success() {
+        var id = UUID.randomUUID();
+        var gig = new Gig();
+        gig.setAvailable(true);
+
+        when(gigRepository.findById(id)).thenReturn(Optional.of(gig));
+        when(gigMapper.toDto(gig)).thenReturn(new GigDto());
+
+        var result = gigService.updateAvailability(id, false);
+
+        assertNotNull(result);
+        assertFalse(gig.isAvailable());
+        verify(gigRepository).save(gig);
+    }
 }
