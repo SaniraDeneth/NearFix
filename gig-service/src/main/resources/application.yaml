@@ -13,5 +13,6 @@ server:
 services:
   auth-service:
     url: ${SERVICES_AUTH_SERVICE_URL:http://localhost:8082}
+  internal-secret: ${INTERNAL_SERVICES_SECRET:dev_internal_secret_key_123!}
 
 

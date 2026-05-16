@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.UUID;
 
 @RestController
@@ -21,6 +23,9 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtConfig jwtConfig;
+
+    @Value("${services.internal-secret}")
+    private String internalSecret;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -67,7 +72,14 @@ public class AuthController {
     }
 
     @PutMapping("/users/{userId}/upgrade-role")
-    public ResponseEntity<UserDto> upgradeRole(@PathVariable UUID userId) {
+    public ResponseEntity<UserDto> upgradeRole(
+            @PathVariable UUID userId,
+            @RequestHeader(value = "X-Internal-Secret", required = false) String secretHeader
+    ) {
+        if (secretHeader == null || !secretHeader.equals(internalSecret)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         var userDto = authService.upgradeUserToProvider(userId);
         return ResponseEntity.ok(userDto);
     }

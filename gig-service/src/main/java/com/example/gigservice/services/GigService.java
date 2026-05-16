@@ -7,7 +7,8 @@ import com.example.gigservice.repositories.GigRepository;
 import com.example.gigservice.repositories.CategoryRepository;
 import com.example.gigservice.exceptions.ResourceNotFoundException;
 import com.example.gigservice.exceptions.UnauthorizedException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -22,13 +23,16 @@ import java.util.stream.Collectors;
 import com.example.gigservice.clients.AuthServiceClient;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GigService {
     private final GigMapper gigMapper;
     private final GigRepository gigRepository;
     private final CategoryRepository categoryRepository;
     private final AuthServiceClient authServiceClient;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    @Value("${services.internal-secret}")
+    private String internalSecret;
 
     public GigDto createGig(CreateGigRequest request, UUID userId) {
         Category category = null;
@@ -106,7 +110,7 @@ public class GigService {
         gigRepository.save(gig);
         
         try {
-            authServiceClient.upgradeUserToProvider(userId);
+            authServiceClient.upgradeUserToProvider(userId, internalSecret);
         } catch (Exception e) {
             // Log or handle exception if needed, but do not block gig creation if auth-service fails
             System.err.println("Failed to upgrade user " + userId + " to PROVIDER: " + e.getMessage());

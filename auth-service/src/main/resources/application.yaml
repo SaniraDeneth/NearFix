@@ -12,3 +12,5 @@ spring:
     refreshTokenExpiration: 604800
 server:
   port: 8082
+services:
+  internal-secret: ${INTERNAL_SERVICES_SECRET:dev_internal_secret_key_123!}

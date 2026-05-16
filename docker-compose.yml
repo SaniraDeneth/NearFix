@@ -48,6 +48,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - JWT_SECRET=your_secret_key_here_at_least_32_characters_long
+      - INTERNAL_SERVICES_SECRET=dev_internal_secret_key_123!
     depends_on:
       - postgres-auth
 
@@ -63,8 +64,24 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - SERVICES_AUTH_SERVICE_URL=http://auth-service:8082
+      - INTERNAL_SERVICES_SECRET=dev_internal_secret_key_123!
     depends_on:
       - postgres-gig
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/order_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - GIG_SERVICE_URL=http://gig-service:8081
+    depends_on:
+      - postgres-order
 
   redis:
     image: redis:7-alpine
@@ -84,13 +101,14 @@ services:
       - JWT_SECRET=your_secret_key_here_at_least_32_characters_long
       - AUTH_SERVICE_URL=http://auth-service:8082
       - GIG_SERVICE_URL=http://gig-service:8081
-      - ORDER_SERVICE_URL=http://host.docker.internal:8083
+      - ORDER_SERVICE_URL=http://order-service:8083
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - redis
       - auth-service
       - gig-service
+      - order-service
 
 volumes:
   gig_db_data:
