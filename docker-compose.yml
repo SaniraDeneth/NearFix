@@ -62,6 +62,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-gig:5432/gig_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
+      - SERVICES_AUTH_SERVICE_URL=http://auth-service:8082
     depends_on:
       - postgres-gig
 

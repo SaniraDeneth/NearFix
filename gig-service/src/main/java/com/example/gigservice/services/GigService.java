@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.example.gigservice.clients.AuthServiceClient;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +27,7 @@ public class GigService {
     private final GigMapper gigMapper;
     private final GigRepository gigRepository;
     private final CategoryRepository categoryRepository;
+    private final AuthServiceClient authServiceClient;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public GigDto createGig(CreateGigRequest request, UUID userId) {
@@ -102,6 +104,14 @@ public class GigService {
         }
 
         gigRepository.save(gig);
+        
+        try {
+            authServiceClient.upgradeUserToProvider(userId);
+        } catch (Exception e) {
+            // Log or handle exception if needed, but do not block gig creation if auth-service fails
+            System.err.println("Failed to upgrade user " + userId + " to PROVIDER: " + e.getMessage());
+        }
+
         return gigMapper.toDto(gig);
     }
 
